@@ -21,31 +21,30 @@ END_TEST = 'Завершить тест'
 end_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).add(KeyboardButton(END_TEST))
 
 
-answers = {}
-poll_to_question = {}
-
-
-def all_questions_answered_by_user(user_id: Union[int, str]) -> bool:
-    return len(answers[user_id].keys()) == TOTAL_QUESTIONS
-
-
-async def send_poll_from_question(chat_id: Union[int, str], question: str, reply_markup: ReplyKeyboardMarkup) -> Message:
-    question = get_question(question)
-    return await dp.bot.send_poll(
+async def send_poll_from_question(
+    chat_id: Union[int, str],
+    user_id: Union[int, str],
+    question: str,
+    reply_markup: ReplyKeyboardMarkup
+) -> Message:
+    question_obj = get_question(question)
+    poll_message = await dp.bot.send_poll(
         chat_id=chat_id,
-        question=question.question,
-        options=question.options,
+        question=question_obj.question,
+        options=question_obj.options,
         is_anonymous=False,
         type='regular',
         allows_multiple_answers=False,
         reply_markup=reply_markup
     )
+    data = await dp.storage.get_data(user=user_id)
+    data[f'question_for_poll{poll_message.poll.id}'] = question
+    await dp.storage.update_data(user=user_id, data=data)
+    return poll_message
 
 
 @dp.message_handler(state='*', commands='start')
 async def start_handler(message: Message) -> None:
-    poll_to_question[message.from_user.id] = {}
-    answers[message.from_user.id] = {}
     await FoosTest.q1.set()
     await message.answer(
         text=(
@@ -63,8 +62,9 @@ async def start_handler(message: Message) -> None:
 async def last_question_handler(message: Message, state: FSMContext) -> None:
     current_state = await state.get_state()
     _, question = current_state.split(':')
-    poll_message = await send_poll_from_question(message.chat.id, question=question, reply_markup=end_keyboard)
-    poll_to_question[message.from_user.id][poll_message.poll.id] = question
+    await send_poll_from_question(
+        chat_id=message.chat.id, user_id=message.from_user.id, question=question, reply_markup=end_keyboard
+    )
 
 
 @dp.message_handler(Text(equals=[NEXT_QUESTION, START_TEST]), state='*')
@@ -72,29 +72,40 @@ async def question_handler(message: Message, state: FSMContext) -> None:
     current_state = await state.get_state()
     _, question = current_state.split(':')
     await FoosTest.next()
-    poll_message = await send_poll_from_question(message.chat.id, question=question, reply_markup=question_keyboard)
-    poll_to_question[message.from_user.id][poll_message.poll.id] = question
+    await send_poll_from_question(
+        chat_id=message.chat.id, user_id=message.from_user.id, question=question, reply_markup=question_keyboard
+    )
 
 
 @dp.message_handler(Text(equals=END_TEST), state='*')
-async def end_handler(message: Message, state: FSMContext) -> None:
-    if not all_questions_answered_by_user(message.from_user.id):
+async def end_handler(message: Message, _: FSMContext) -> None:
+    data = await dp.storage.get_data(user=message.from_user.id)
+    answers = {}
+    for key, value in data.items():
+        if key.startswith('answer_for_question'):
+            answers[key] = value
+    user_answered_all_questions = True  # TODO
+    if not user_answered_all_questions:
         await message.answer(
             text='Вы ответили не на все вопросы. Проверьте свои голоса и снова нажмите "Завершить тест".',
             reply_markup=end_keyboard
         )
     else:
         await message.answer(
-            f'Спасибо за тестирование! Ваши ответы зафиксированы: {answers[message.from_user.id]}', reply_markup=None
+            f'Спасибо за тестирование! Ваши ответы: {answers}', reply_markup=None
         )
 
 
 @dp.poll_answer_handler()
 async def poll_handler(poll_answer: PollAnswer) -> None:
     logger.info(poll_answer)
-    logger.info(poll_to_question)
-    question = poll_to_question[poll_answer.user.id][poll_answer.poll_id]
-    answers[poll_answer.user.id][question] = poll_answer.option_ids
+    data = await dp.storage.get_data(user=poll_answer.user.id)
+    question = data[f'question_for_poll{poll_answer.poll_id}']
+    if poll_answer.option_ids:
+        data[f'answer_for_question{question}'] = poll_answer.option_ids[0]
+    else:  # vote retracted
+        data.pop(f'answer_for_question{question}', None)
+    await dp.storage.update_data(user=poll_answer.user.id, data=data)
 
 
 if __name__ == '__main__':

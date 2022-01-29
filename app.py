@@ -1,11 +1,9 @@
-from typing import Any
 import logging
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from aiogram.contrib.fsm_storage.redis import RedisStorage2
 from aiogram.dispatcher import Dispatcher
 from aiogram.bot import Bot
 from aiogram.utils.executor import start_webhook
-import aioredis
 from settings import (
     webhook_path, webhook_url, webapp_host, webapp_port, telegram_token, database_uri, log_level, tz,
     redis_host, redis_port, redis_db
