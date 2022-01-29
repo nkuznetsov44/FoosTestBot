@@ -1,10 +1,14 @@
+from typing import Any
 import logging
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
+from aiogram.contrib.fsm_storage.redis import RedisStorage2
 from aiogram.dispatcher import Dispatcher
 from aiogram.bot import Bot
 from aiogram.utils.executor import start_webhook
+import aioredis
 from settings import (
-    webhook_path, webhook_url, webapp_host, webapp_port, telegram_token, database_uri, log_level, tz
+    webhook_path, webhook_url, webapp_host, webapp_port, telegram_token, database_uri, log_level, tz,
+    redis_host, redis_port, redis_db
 )
 
 
@@ -13,7 +17,8 @@ logging.basicConfig(level=level)
 logger = logging.getLogger(__name__)
 
 bot = Bot(token=telegram_token)
-dp = Dispatcher(bot)
+storage = RedisStorage2(host=redis_host, port=redis_port, db=redis_db)
+dp = Dispatcher(bot, storage=storage)
 dp.middleware.setup(LoggingMiddleware())
 
 
@@ -22,6 +27,8 @@ async def on_startup(_: Dispatcher) -> None:
 
 
 async def on_shutdown(_: Dispatcher) -> None:
+    await dp.storage.close()
+    await dp.storage.wait_closed()
     await bot.delete_webhook(webhook_url)
 
 
