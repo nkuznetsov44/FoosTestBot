@@ -25,8 +25,15 @@ question_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).add(KeyboardButton
 END_TEST = 'Завершить тест'
 end_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).add(KeyboardButton(END_TEST))
 
-questions_with_options_states = [FoosTest.q1, FoosTest.q2, FoosTest.q3]
-open_questions_states = [FoosTest.q4, FoosTest.q5]
+questions_with_options_states = [
+    FoosTest.q1, FoosTest.q2, FoosTest.q3, FoosTest.q4, FoosTest.q5, FoosTest.q6, FoosTest.q7, FoosTest.q8,
+    FoosTest.q9, FoosTest.q10, FoosTest.q11, FoosTest.q12, FoosTest.q13, FoosTest.q14, FoosTest.q15, FoosTest.q16,
+    FoosTest.q17, FoosTest.q18, FoosTest.q19, FoosTest.q20
+]
+open_questions_states = [
+    FoosTest.q21, FoosTest.q22, FoosTest.q23, FoosTest.q24, FoosTest.q25, FoosTest.q26, FoosTest.q27,
+    FoosTest.q28, FoosTest.q29, FoosTest.q30
+]
 
 
 REDIS_ANSWER_PREFIX = 'answer_for_question'
