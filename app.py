@@ -5,7 +5,7 @@ from aiogram.dispatcher import Dispatcher
 from aiogram.bot import Bot
 from aiogram.utils.executor import start_webhook
 from settings import (
-    webhook_path, webhook_url, webapp_host, webapp_port, telegram_token, database_uri, log_level, tz,
+    webhook_path, webhook_url, webapp_host, webapp_port, telegram_token, database_uri, log_level,
     redis_host, redis_port, redis_db
 )
 
