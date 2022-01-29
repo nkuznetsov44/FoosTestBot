@@ -1,9 +1,12 @@
-from typing import Union
+from typing import Union, Dict
 import logging
+from datetime import datetime
 from aiogram.types import Message, PollAnswer, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher import FSMContext
-from app import dp, start_app
+from sqlalchemy.orm import scoped_session, sessionmaker
+from app import dp, start_app, db_engine
+from model import TelegramUser, Answer
 from foostest import FoosTest
 from questions import (
     questions, TOTAL_QUESTIONS, get_previous_question_code, get_last_question_code,
@@ -26,6 +29,30 @@ questions_with_options_states = [FoosTest.q1, FoosTest.q2, FoosTest.q3]
 open_questions_states = [FoosTest.q4, FoosTest.q5]
 
 
+REDIS_ANSWER_PREFIX = 'answer_for_question'
+REDIS_POLL_PREFIX = 'question_for_poll'
+
+
+DbSession = scoped_session(sessionmaker(bind=db_engine))
+
+
+def save_user_answers(user_id: Union[int, str], answers: Dict[str, Union[int,str]]) -> None:
+    db_session = DbSession()
+    try:
+        user = db_session.query(TelegramUser).get(int(user_id))
+        for question, answer in answers.items():
+            answer_obj = Answer(
+                user_id=user.user_id,
+                question=question.replace(REDIS_ANSWER_PREFIX, ''),
+                answer=str(answer),
+                answer_time=datetime.now()
+            )
+            db_session.add(answer_obj)
+        db_session.commit()
+    finally:
+        DbSession.remove()
+
+
 async def send_poll_from_question(
     chat_id: Union[int, str],
     user_id: Union[int, str],
@@ -45,7 +72,7 @@ async def send_poll_from_question(
         reply_markup=reply_markup
     )
     data = await dp.storage.get_data(user=user_id)
-    data[f'question_for_poll{poll_message.poll.id}'] = question
+    data[f'{REDIS_POLL_PREFIX}{poll_message.poll.id}'] = question
     await dp.storage.update_data(user=user_id, data=data)
     return poll_message
 
@@ -66,6 +93,22 @@ async def send_open_question(
 
 @dp.message_handler(state='*', commands='start')
 async def start_handler(message: Message) -> None:
+    db_session = DbSession()
+    try:
+        user = db_session.query(TelegramUser).get(message.from_user.id)
+        if not user:
+            user = TelegramUser(
+                user_id=message.from_user.id,
+                first_name=message.from_user.first_name,
+                last_name=message.from_user.last_name,
+                username=message.from_user.username
+            )
+            db_session.add(user)
+            db_session.commit()
+            logger.info(f'Created new user {user}')
+    finally:
+        DbSession.remove()
+    logger.info(f'Starting test session for user {user}')
     await dp.storage.reset_data(user=message.from_user.id)
     await FoosTest.q1.set()
     await message.answer(
@@ -92,12 +135,12 @@ async def end_handler(message: Message) -> None:
     if message.text != END_TEST:
         # here we still got an answer for the last question
         last_question = get_last_question_code()
-        data[f'answer_for_question{last_question}'] = message.text
+        data[f'{REDIS_ANSWER_PREFIX}{last_question}'] = message.text
         await dp.storage.update_data(user=message.from_user.id, data=data)
 
     answers = {}
     for key, value in data.items():
-        if key.startswith('answer_for_question'):
+        if key.startswith(REDIS_ANSWER_PREFIX):
             answers[key] = value
     user_answered_all_questions = len(answers.keys()) == TOTAL_QUESTIONS
     if not user_answered_all_questions:
@@ -106,8 +149,9 @@ async def end_handler(message: Message) -> None:
             reply_markup=end_keyboard
         )
     else:
+        save_user_answers(message.from_user.id, answers)
         await message.answer(
-            f'Спасибо за тестирование! Ваши ответы: {answers}', reply_markup=None
+            f'Спасибо за тестирование! Ваши ответы сохранены:\n{answers}', reply_markup=None
         )
 
 
@@ -123,13 +167,14 @@ async def question_with_options_handler(message: Message, state: FSMContext) -> 
 
 @dp.message_handler(state=open_questions_states)
 async def open_question_handler(message: Message, state: FSMContext) -> None:
+    logger.info(message)
     current_state = await state.get_state()
     _, question = current_state.split(':')
     if message.text != NEXT_QUESTION:
         # here we always get answer for previous question
         previous_question = get_previous_question_code(question)
         data = await dp.storage.get_data(user=message.from_user.id)
-        data[f'answer_for_question{previous_question}'] = message.text
+        data[f'{REDIS_ANSWER_PREFIX}{previous_question}'] = message.text
         logger.info(f'open_question_handler: saved answer {message.text} for question {previous_question}')
         await dp.storage.update_data(user=message.from_user.id, data=data)
     await FoosTest.next()
@@ -140,11 +185,11 @@ async def open_question_handler(message: Message, state: FSMContext) -> None:
 async def poll_handler(poll_answer: PollAnswer) -> None:
     logger.info(poll_answer)
     data = await dp.storage.get_data(user=poll_answer.user.id)
-    question = data[f'question_for_poll{poll_answer.poll_id}']
+    question = data[f'{REDIS_POLL_PREFIX}{poll_answer.poll_id}']
     if poll_answer.option_ids:
-        data[f'answer_for_question{question}'] = poll_answer.option_ids[0]
+        data[f'{REDIS_ANSWER_PREFIX}{question}'] = poll_answer.option_ids[0]
     else:  # vote retracted
-        data.pop(f'answer_for_question{question}', None)
+        data.pop(f'{REDIS_ANSWER_PREFIX}{question}', None)
     await dp.storage.update_data(user=poll_answer.user.id, data=data)
 
 

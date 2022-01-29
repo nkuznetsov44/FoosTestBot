@@ -44,3 +44,10 @@ services:
       - WEBAPP_PORT=${WEBAPP_PORT}
       - TZ=${TZ}
       - LOG_LEVEL=${LOG_LEVEL}
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: foostestbot-phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      - PMA_HOST=mariadb
