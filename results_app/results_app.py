@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, Response
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from settings import database_uri
@@ -11,7 +11,7 @@ DbSession = scoped_session(sessionmaker(bind=db_engine))
 
 
 @app.route('/api/users')
-def users():
+def users() -> Response:
     db_session = DbSession()
     try:
         users = db_session.query(TelegramUser).all()
@@ -21,7 +21,7 @@ def users():
 
 
 @app.route('/api/answers/<int:user_id>')
-def answers(user_id):
+def answers(user_id: int) -> Response:
     db_session = DbSession()
     try:
         answers = db_session.query(Answer).filter(Answer.user_id == user_id)

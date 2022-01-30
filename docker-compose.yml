@@ -71,3 +71,4 @@ services:
       - ./nginx-conf.d:/etc/nginx/conf.d
       - ./results_app/html:/var/www/foostest-results-app
       - ./results_app/js:/var/www/foostest-results-app/js
+      - ./results_app/css:/var/www/foostest-results-app/css
