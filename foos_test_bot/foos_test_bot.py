@@ -43,15 +43,21 @@ REDIS_POLL_PREFIX = 'question_for_poll'
 DbSession = scoped_session(sessionmaker(bind=db_engine))
 
 
-def save_user_answers(user_id: Union[int, str], answers: Dict[str, Union[int,str]]) -> None:
+def save_user_answers(user_id: Union[int, str], answers: Dict[str, Union[int, str]]) -> None:
     db_session = DbSession()
     try:
         user = db_session.query(TelegramUser).get(int(user_id))
         for question, answer in answers.items():
+            question = question.replace(REDIS_ANSWER_PREFIX, '')
+            quesion_obj = questions[question]
+            is_correct = None
+            if isinstance(quesion_obj, FoosTestQuestion):
+                is_correct = quesion_obj.correct_answer_index == int(answer)
             answer_obj = Answer(
                 user_id=user.user_id,
-                question=question.replace(REDIS_ANSWER_PREFIX, ''),
+                question=question,
                 answer=str(answer),
+                is_correct=is_correct,
                 answer_time=datetime.now()
             )
             db_session.add(answer_obj)

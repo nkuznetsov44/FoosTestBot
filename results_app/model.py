@@ -1,5 +1,5 @@
 from typing import Any, List, Dict
-from sqlalchemy import Column, ForeignKey, Integer, String, Text, DateTime
+from sqlalchemy import Column, ForeignKey, Integer, String, Text, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -44,6 +44,7 @@ class Answer(Base, Serializable, SerializeListMixin):
     user = relationship('TelegramUser', back_populates='answers')
     question = Column('question', String)
     answer = Column('answer', Text, nullable=True)
+    is_correct = Column('is_correct', Boolean, nullable=True)
     answer_time = Column('answer_time', DateTime)
 
     def serialize(self) -> Dict[str, Any]:
@@ -52,5 +53,6 @@ class Answer(Base, Serializable, SerializeListMixin):
             'user_id': self.user_id,
             'question': self.question,
             'answer': self.answer,
+            'is_correct': self.is_correct,
             'answer_time': self.answer_time
         }

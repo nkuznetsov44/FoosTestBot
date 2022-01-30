@@ -11,5 +11,6 @@ create table answers (
     question varchar(32) not null,
     answer text null,
     answer_time datetime,
+    is_correct boolean null,
     foreign key (user_id) references telegram_user(user_id)
 );
