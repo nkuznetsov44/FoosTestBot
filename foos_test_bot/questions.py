@@ -16,13 +16,22 @@ class FoosTestOpenQuestion(FoosTestQuestionBase):
 
 
 class FoosTestQuestion(FoosTestQuestionBase):
-    def __init__(self, number: int, question: str, options: List[str]) -> None:
+    def __init__(self, number: int, question: str, options: List[str], correct_answer_index: int) -> None:
         super().__init__(number, question)
         self._options = options
+        self._correct_answer_index = correct_answer_index
 
     @property
     def options(self) -> List[str]:
         return self._options
+
+    @property
+    def correct_answer_index(self) -> int:
+        return self._correct_answer_index
+
+    @property
+    def correct_answer(self) -> str:
+        return self._options[self.correct_answer_index]
 
 
 def get_previous_question_code(question: str) -> str:
@@ -40,7 +49,8 @@ questions = {
     'q1': FoosTestQuestion(
         number=1,
         question='Наказание за запрос третьего тайм-аута – технический фол.',
-        options=['Да', 'Нет']
+        options=['Да', 'Нет'],
+        correct_answer_index=0,
     ),
     'q2': FoosTestQuestion(
         number=2,
@@ -48,14 +58,16 @@ questions = {
             'Прокручивание неудерживаемой Игроком штанги в результате удара мяча по фигурке '
             'игрока не является нарушением'
         ),
-        options=['Да', 'Нет']
+        options=['Да', 'Нет'],
+        correct_answer_index=0,
     ),
     'q3': FoosTestQuestion(
         number=3,
         question=(
             'Разрешается оспорить решение Арбитра в случае, если оно касается трактовки правил.'
         ),
-        options=['Да', 'Нет']
+        options=['Да', 'Нет'],
+        correct_answer_index=0,
     ),
     'q4': FoosTestQuestion(
         number=4,
@@ -63,17 +75,20 @@ questions = {
             'Если мяч покинул пределы стола, он вводится в игру путем подачи тем, кто '
             'изначально подавал этот мяч'
         ),
-        options=['Да', 'Нет']
+        options=['Да', 'Нет'],
+        correct_answer_index=0,
     ),
     'q5': FoosTestQuestion(
         number=5,
         question='Сотрясения аккумулируются на протяжении матча.',
-        options=['Да', 'Нет']
+        options=['Да', 'Нет'],
+        correct_answer_index=0,
     ),
     'q6': FoosTestQuestion(
         number=6,
         question='Сбросы аккумулируются на протяжении матча.',
-        options=['Да', 'Нет']
+        options=['Да', 'Нет'],
+        correct_answer_index=0,
     ),
     'q7': FoosTestQuestion(
         number=7,
@@ -82,7 +97,8 @@ questions = {
             'на 3-й линии, если после отправления с линии он коснулся игрока 2-й линии '
             'противника.'
         ),
-        options=['Да', 'Нет']
+        options=['Да', 'Нет'],
+        correct_answer_index=0,
     ),
     'q8': FoosTestQuestion(
         number=8,
@@ -91,26 +107,30 @@ questions = {
             'на 2-й линии, если после отправления с линии он коснулся игрока 3-й линии '
             'противника.'
         ),
-        options=['Да', 'Нет']
+        options=['Да', 'Нет'],
+        correct_answer_index=0,
     ),
     'q9': FoosTestQuestion(
         number=9,
         question=(
             'Объявление сброса на 2-й линии также сбрасывает число касаний мячом стенок стола'
         ),
-        options=['Да', 'Нет']
+        options=['Да', 'Нет'],
+        correct_answer_index=0,
     ),
     'q10': FoosTestQuestion(
         number=10,
         question=(
             'Если пенальти завершается взятием ворот, мяч подает команда, пропустившая гол.'
         ),
-        options=['Да', 'Нет']
+        options=['Да', 'Нет'],
+        correct_answer_index=0,
     ),
     'q11': FoosTestQuestion(
         number=11,
         question='Какое наказание предусмотрено за получение третьего тайм-аута за одну игру?',
-        options=['Предупреждение', 'Потеря владения', 'Технический фол']
+        options=['Предупреждение', 'Потеря владения', 'Технический фол'],
+        correct_answer_index=0,
     ),
     'q12': FoosTestQuestion(
         number=12,
@@ -122,7 +142,8 @@ questions = {
             'Ввести мяч в игру с 1-й линии',
             'Ввести мяч в игру путем подачи',
             'Продолжить игру из текущей позиции или подать мяч'
-        ]
+        ],
+        correct_answer_index=0,
     ),
     'q13': FoosTestQuestion(
         number=13,
@@ -131,7 +152,8 @@ questions = {
             'Предупреждение',
             'Подача мяча противником',
             'Технический фол'
-        ]
+        ],
+        correct_answer_index=0,
     ),
     'q14': FoosTestQuestion(
         number=14,
@@ -144,7 +166,8 @@ questions = {
             'Пас не по правилам (остановленный мяч) – Гол не засчитывается – Подача противников.',
             'Нет нарушения – Гол засчитывается.',
             'Пас не по правилам (остановленный мяч) – Гол не засчитывается – Противник вводит мяч с 1-й линии.'
-        ]
+        ],
+        correct_answer_index=0,
     ),
     'q15': FoosTestQuestion(
         number=15,
@@ -153,7 +176,8 @@ questions = {
             'Предупреждение',
             'Подача мяча противником',
             'Технический фол'
-        ]
+        ],
+        correct_answer_index=0,
     ),
     'q16': FoosTestQuestion(
         number=16,
@@ -162,7 +186,8 @@ questions = {
             'Предупреждение',
             'На выбор противника: продолжение игры или его подача',
             'Технический фол'
-        ]
+        ],
+        correct_answer_index=0,
     ),
     'q17': FoosTestQuestion(
         number=17,
@@ -174,7 +199,8 @@ questions = {
             'Предупреждение',
             'Потеря владения',
             'Технический фол'
-        ]
+        ],
+        correct_answer_index=0,
     ),
     'q18': FoosTestQuestion(
         number=18,
@@ -187,7 +213,8 @@ questions = {
             'Пас не по правилам (остановленный мяч) – Гол не засчитывается – Подача противников.',
             'Пас не по правилам (остановленный мяч) – Гол не засчитывается – Противник вводит мяч с 1-й линии',
             'Нет нарушения – Гол засчитывается'
-        ]
+        ],
+        correct_answer_index=0,
     ),
     'q19': FoosTestQuestion(
         number=19,
@@ -196,7 +223,8 @@ questions = {
             'как только мяч касается второй фигурки игрока',
             'через одну секунду после того, как мяч касается второй фигурки игрока',
             'как только мяч сдвигается с места'
-        ]
+        ],
+        correct_answer_index=0,
     ),
     'q20': FoosTestQuestion(
         number=20,
@@ -205,7 +233,8 @@ questions = {
             'при любых обстоятельствах',
             'только взяв тайм-аут',
             'только если это разрешалось бы сделать, если бы не был объявлен судейский тайм-аут'
-        ]
+        ],
+        correct_answer_index=0,
     ),
     'q21': FoosTestOpenQuestion(
         number=21,
