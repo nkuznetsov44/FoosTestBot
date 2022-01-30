@@ -1,6 +1,0 @@
-initdb.d/
-redis/
-.git*
-.env*
-.idea
-venv/
