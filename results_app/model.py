@@ -51,5 +51,6 @@ class Answer(Base, Serializable, SerializeListMixin):
             'id': self.id,
             'user_id': self.user_id,
             'question': self.question,
-            'answer': self.answer
+            'answer': self.answer,
+            'answer_time': self.answer_time
         }

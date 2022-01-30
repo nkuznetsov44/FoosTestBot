@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from settings import database_uri
-from model import TelegramUser
+from model import TelegramUser, Answer
 
 
 app = Flask(__name__)
@@ -16,5 +16,15 @@ def users():
     try:
         users = db_session.query(TelegramUser).all()
         return jsonify(TelegramUser.serialize_list(users))
+    finally:
+        DbSession.remove()
+
+
+@app.route('/api/answers/<int:user_id>')
+def answers(user_id):
+    db_session = DbSession()
+    try:
+        answers = db_session.query(Answer).filter(Answer.user_id == user_id)
+        return jsonify(Answer.serialize_list(answers))
     finally:
         DbSession.remove()
