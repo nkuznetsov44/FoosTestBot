@@ -34,6 +34,15 @@ function App() {
     }
   };
 
+  const onSaved = ({ changes }) => {
+    const data = changes.map((change) => change.data);
+    axios.post(
+      '/api/answers/changes', data
+    ).then((response) => {
+      console.log(response);
+    });
+  };
+
   return (
     <div className="App">
       <h1>Foos test results</h1>
@@ -42,6 +51,7 @@ function App() {
           dataSource={users}
           showBorders={true}
           hoverStateEnabled={true}
+          columnAutoWidth={true}
           keyExpr="user_id"
           onSelectionChanged={onSelectionChanged}
         >
@@ -56,6 +66,9 @@ function App() {
           dataSource={selectedUserAnswers}
           showBorders={true}
           hoverStateEnabled={true}
+          columnAutoWidth={true}
+          rowAlternationEnabled={true}
+          onSaved={onSaved}
         >
           <Scrolling mode="virtual" />
           <Editing
