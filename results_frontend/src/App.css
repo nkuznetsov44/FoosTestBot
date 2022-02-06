@@ -2,6 +2,14 @@ h1 {
   margin: 10px;
 }
 
+h2.checked {
+  color: green;
+}
+
+h2.unchecked {
+  color: lightgray;
+}
+
 section {
   margin: 10px;
 }

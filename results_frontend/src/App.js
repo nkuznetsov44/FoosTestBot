@@ -12,6 +12,7 @@ function App() {
   const [users, setUsers] = React.useState([]);
   const [selectedUserId, setSelectedUserId] = React.useState(null);
   const [selectedUserAnswers, setSelectedUserAnswers] = React.useState(null);
+  const [answersNeedUpdate, setAnswersNeedUpdate] = React.useState(false);
 
   React.useEffect(() => {
     axios.get('/api/users').then((response) => {
@@ -20,10 +21,19 @@ function App() {
   }, []);
 
   React.useEffect(() => {
+    if (answersNeedUpdate) {
+      if (!_.isNull(selectedUserId)) {
+        axios.get(`/api/answers/${selectedUserId}`).then((response) => {
+          setSelectedUserAnswers(response.data);
+        });
+      }
+      setAnswersNeedUpdate(false);
+    }
+  }, [answersNeedUpdate]);
+
+  React.useEffect(() => {
     if (!_.isNull(selectedUserId)) {
-      axios.get(`/api/answers/${selectedUserId}`).then((response) => {
-        setSelectedUserAnswers(response.data);
-      });
+      setAnswersNeedUpdate(true);
     }
   }, [selectedUserId]);
 
@@ -39,8 +49,26 @@ function App() {
     axios.post(
       '/api/answers/changes', data
     ).then((response) => {
-      console.log(response);
+      setAnswersNeedUpdate(true);
     });
+  };
+
+  const selectedUserScoreElement = () => {
+    if (!_.isNull(selectedUserId) && !_.isNull(selectedUserAnswers)) {
+      const score = selectedUserAnswers
+        .map((answer) => answer.is_correct)
+        .reduce((v1, v2) => v1 + v2);
+      const totalScore = selectedUserAnswers
+        .map((answer) => !_.isNull(answer.is_correct))
+        .reduce((v1, v2) => v1 + v2);
+      const allAnswersAreChecked = selectedUserAnswers
+        .map((answer) => !_.isNull(answer.is_correct))
+        .reduce((v1, v2) => v1 && v2);
+      return (
+        <h2 className={allAnswersAreChecked ? "checked" : "unchecked"}>Score: {score}/{totalScore}</h2>
+      )
+    }
+    return <div />;
   };
 
   return (
@@ -60,6 +88,9 @@ function App() {
           <Column dataField="first_name" />
           <Column dataField="last_name" />
         </DataGrid>
+      </section>
+      <section className="score">
+        {selectedUserScoreElement()}
       </section>
       <section className="answers">
         <DataGrid
