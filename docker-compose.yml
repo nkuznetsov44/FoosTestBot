@@ -62,13 +62,11 @@ services:
       - MYSQL_DATABASE=FoosTestBot
       - TZ=${TZ}
       - LOG_LEVEL=${LOG_LEVEL}
-  foostest-results-app-nginx:
-    image: nginx:latest
-    container_name: foostest-results-app-nginx
+  foostest-results-frontend:
+    build: results_frontend/.
+    image: nkuznetsov44/foostest-results-frontend:${DOCKER_TAG}
+    container_name: foostest-results-frontend
     ports:
       - ${RESULTS_APP_PORT}:80
-    volumes:
-      - ./nginx-conf.d:/etc/nginx/conf.d
-      - ./results_app/html:/var/www/foostest-results-app
-      - ./results_app/js:/var/www/foostest-results-app/js
-      - ./results_app/css:/var/www/foostest-results-app/css
+    environment:
+      - TZ=${TZ}

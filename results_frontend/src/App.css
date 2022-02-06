@@ -1,0 +1,11 @@
+h1 {
+  margin: 10px;
+}
+
+section {
+  margin: 10px;
+}
+
+.users, .answers {
+  width: 600px;
+}
