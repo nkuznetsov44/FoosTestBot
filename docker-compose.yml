@@ -66,6 +66,8 @@ services:
     build: results_frontend/.
     image: nkuznetsov44/foostest-results-frontend:${DOCKER_TAG}
     container_name: foostest-results-frontend
+    depends_on:
+      - foostest-results-app
     ports:
       - ${RESULTS_APP_PORT}:80
     environment:
