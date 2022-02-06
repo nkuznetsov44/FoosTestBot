@@ -5,7 +5,6 @@ import React from "react";
 import axios from "axios";
 import * as _ from 'lodash';
 import 'devextreme/dist/css/dx.light.css';
-import Button from 'devextreme-react/button';
 import DataGrid, { Column, Selection, Scrolling, Editing } from 'devextreme-react/data-grid';
 
 function App() {
@@ -29,7 +28,7 @@ function App() {
       }
       setAnswersNeedUpdate(false);
     }
-  }, [answersNeedUpdate]);
+  }, [selectedUserId, answersNeedUpdate]);
 
   React.useEffect(() => {
     if (!_.isNull(selectedUserId)) {
