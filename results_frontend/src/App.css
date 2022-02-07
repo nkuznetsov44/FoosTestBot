@@ -18,8 +18,8 @@ section {
   margin: 10px;
 }
 
-.users {
-  width: 600px;
+.users, .testSessions {
+  width: 800px;
 }
 
 .answers {

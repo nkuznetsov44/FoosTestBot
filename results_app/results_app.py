@@ -1,36 +1,28 @@
 from flask import Flask, jsonify, Response, request
-from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
+from common.service import FoosTestService
 from settings import database_uri
-from common.model import TelegramUser, Answer
-from common.dto import AnswerDto
 
 
 app = Flask(__name__)
-db_engine = create_engine(database_uri, pool_recycle=3600)
-DbSession = scoped_session(sessionmaker(bind=db_engine))
+foos_test_service = FoosTestService(database_uri)
 
 
 @app.route('/api/users', methods=['GET'])
 def users() -> Response:
-    db_session = DbSession()
-    try:
-        users = db_session.query(TelegramUser).all()
-        return jsonify(TelegramUser.serialize_list(users))
-    finally:
-        DbSession.remove()
+    return jsonify(foos_test_service.list_users())
 
 
-@app.route('/api/answers/<int:user_id>', methods=['GET'])
-def answers(user_id: int) -> Response:
-    db_session = DbSession()
-    try:
-        answers = list(map(AnswerDto.from_model, db_session.query(Answer).filter(Answer.user_id == user_id)))
-        return jsonify(answers)
-    finally:
-        DbSession.remove()
+@app.route('/api/testSessions/<int:user_id>', methods=['GET'])
+def user_test_sessions(user_id: int) -> Response:
+    return jsonify(foos_test_service.get_user_test_sessions(user_id))
 
 
+@app.route('/api/answers/<int:test_session_id>', methods=['GET'])
+def test_session_answers(test_session_id: int) -> Response:
+    return jsonify(foos_test_service.get_test_session_answers(test_session_id))
+
+
+"""
 @app.route('/api/answers/changes', methods=['POST'])
 def answers_changes() -> Response:
     request_data = request.get_json()
@@ -43,3 +35,4 @@ def answers_changes() -> Response:
     finally:
         DbSession.remove()
     return Response(status=200)
+"""

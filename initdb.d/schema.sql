@@ -5,12 +5,20 @@ create table telegram_user (
     username varchar(255) null
 );
 
-create table answers (
+create table test_session (
     id int not null primary key auto_increment,
     user_id int not null,
+    start_time datetime,
+    end_time datetime null,
+    score int null,
+    foreign key (user_id) references telegram_user(user_id)
+);
+
+create table answers (
+    id int not null primary key auto_increment,
+    test_session_id int not null,
     question varchar(32) not null,
     answer text null,
-    answer_time datetime,
     is_correct boolean null,
-    foreign key (user_id) references telegram_user(user_id)
+    foreign key (test_session_id) references test_session(id)
 );

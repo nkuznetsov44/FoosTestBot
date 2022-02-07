@@ -4,7 +4,7 @@ from aiogram.contrib.fsm_storage.redis import RedisStorage2
 from aiogram.dispatcher import Dispatcher
 from aiogram.bot import Bot
 from aiogram.utils.executor import start_webhook
-from sqlalchemy import create_engine
+from common.service import FoosTestService
 from settings import (
     webhook_path, webhook_url, webapp_host, webapp_port, telegram_token, database_uri, log_level,
     redis_host, redis_port, redis_db
@@ -20,7 +20,7 @@ storage = RedisStorage2(host=redis_host, port=redis_port, db=redis_db)
 dp = Dispatcher(bot, storage=storage)
 dp.middleware.setup(LoggingMiddleware())
 
-db_engine = create_engine(database_uri, pool_recycle=3600)
+foos_test_service = FoosTestService(database_uri)
 
 
 async def on_startup(_: Dispatcher) -> None:

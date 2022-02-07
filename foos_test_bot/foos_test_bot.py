@@ -1,12 +1,9 @@
-from typing import Union, Dict
+from typing import Union
 import logging
-from datetime import datetime
 from aiogram.types import Message, PollAnswer, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher import FSMContext
-from sqlalchemy.orm import scoped_session, sessionmaker
-from app import dp, start_app, db_engine
-from common.model import TelegramUser, Answer
+from app import dp, start_app, foos_test_service
 from foostest import FoosTest
 from common.questions import (
     questions, TOTAL_QUESTIONS, get_previous_question_code, get_last_question_code,
@@ -38,32 +35,7 @@ open_questions_states = [
 
 REDIS_ANSWER_PREFIX = 'answer_for_question'
 REDIS_POLL_PREFIX = 'question_for_poll'
-
-
-DbSession = scoped_session(sessionmaker(bind=db_engine))
-
-
-def save_user_answers(user_id: Union[int, str], answers: Dict[str, Union[int, str]]) -> None:
-    db_session = DbSession()
-    try:
-        user = db_session.query(TelegramUser).get(int(user_id))
-        for question, answer in answers.items():
-            question = question.replace(REDIS_ANSWER_PREFIX, '')
-            quesion_obj = questions[question]
-            is_correct = None
-            if isinstance(quesion_obj, FoosTestQuestion):
-                is_correct = quesion_obj.correct_answer_index == int(answer)
-            answer_obj = Answer(
-                user_id=user.user_id,
-                question=question,
-                answer=str(answer),
-                is_correct=is_correct,
-                answer_time=datetime.now()
-            )
-            db_session.add(answer_obj)
-        db_session.commit()
-    finally:
-        DbSession.remove()
+REDIS_ACTIVE_TEST_SESSION_KEY = 'active_test_session'
 
 
 async def send_poll_from_question(
@@ -106,23 +78,22 @@ async def send_open_question(
 
 @dp.message_handler(state='*', commands='start')
 async def start_handler(message: Message) -> None:
-    db_session = DbSession()
-    try:
-        user = db_session.query(TelegramUser).get(message.from_user.id)
-        if not user:
-            user = TelegramUser(
-                user_id=message.from_user.id,
-                first_name=message.from_user.first_name,
-                last_name=message.from_user.last_name,
-                username=message.from_user.username
-            )
-            db_session.add(user)
-            db_session.commit()
-            logger.info(f'Created new user {user}')
-    finally:
-        DbSession.remove()
+    user = foos_test_service.get_user(message.from_user.id)
+    if not user:
+        logger.info(f'Got /start command from unknown user {message.from_user}')
+        user = foos_test_service.create_user(
+            user_id=message.from_user.id,
+            first_name=message.from_user.first_name,
+            last_name=message.from_user.last_name,
+            username=message.from_user.username
+        )
     logger.info(f'Starting test session for user {user}')
+    test_session = foos_test_service.create_test_session_for_user(user.user_id)
+    logger.info(f'Started test session {test_session}')
     await dp.storage.reset_data(user=message.from_user.id)
+    await dp.storage.update_data(user=message.from_user.id, data={
+        REDIS_ACTIVE_TEST_SESSION_KEY: test_session.id
+    })
     await FoosTest.q1.set()
     await message.answer(
         text=(
@@ -160,18 +131,21 @@ async def end_handler(message: Message) -> None:
     answers = {}
     for key, value in data.items():
         if key.startswith(REDIS_ANSWER_PREFIX):
-            answers[key] = value
+            answers[key.replace(REDIS_ANSWER_PREFIX, '')] = value
+
     user_answered_all_questions = len(answers.keys()) == TOTAL_QUESTIONS
     if not user_answered_all_questions:
         await message.answer(
             text='Вы ответили не на все вопросы. Проверьте свои голоса и нажмите "Завершить тест".',
             reply_markup=end_keyboard
         )
-    else:
-        save_user_answers(message.from_user.id, answers)
-        await message.answer(
-            f'Спасибо за тестирование! Ваши ответы сохранены:\n{answers}', reply_markup=None
-        )
+        return
+
+    active_test_session_id = data[REDIS_ACTIVE_TEST_SESSION_KEY]
+    test_session = foos_test_service.end_test_session(active_test_session_id, answers)
+    await message.answer(
+        f'Спасибо за тестирование! Ваши ответы сохранены.', reply_markup=None
+    )
 
 
 @dp.message_handler(Text(equals=[NEXT_QUESTION, START_TEST]), state=questions_with_options_states)
