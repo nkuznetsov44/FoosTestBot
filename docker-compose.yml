@@ -18,8 +18,17 @@ services:
     command: "redis-server /usr/local/etc/redis/redis.conf"
     volumes:
       - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: foostestbot-phpmyadmin
+    ports:
+      - ${PMA_PORT}:80
+    environment:
+      - PMA_HOST=mariadb
   foostestbot:
-    build: foos_test_bot/.
+    build:
+      context: ./
+      dockerfile: ./foos_test_bot/Dockerfile
     image: nkuznetsov44/foostestbot:${DOCKER_TAG}
     container_name: foostestbot
     depends_on:
@@ -42,15 +51,10 @@ services:
       - WEBAPP_PORT=${WEBAPP_PORT}
       - TZ=${TZ}
       - LOG_LEVEL=${LOG_LEVEL}
-  phpmyadmin:
-    image: phpmyadmin
-    container_name: foostestbot-phpmyadmin
-    ports:
-      - ${PMA_PORT}:80
-    environment:
-      - PMA_HOST=mariadb
   foostest-results-app:
-    build: results_app/.
+    build:
+      context: ./
+      dockerfile: ./results_app/Dockerfile
     image: nkuznetsov44/foostest-results-app:${DOCKER_TAG}
     container_name: foostest-results-app
     depends_on:

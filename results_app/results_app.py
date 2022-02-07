@@ -2,7 +2,7 @@ from flask import Flask, jsonify, Response, request
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from settings import database_uri
-from model import TelegramUser, Answer
+from common.model import TelegramUser, Answer
 
 
 app = Flask(__name__)

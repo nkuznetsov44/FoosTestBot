@@ -6,9 +6,9 @@ from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher import FSMContext
 from sqlalchemy.orm import scoped_session, sessionmaker
 from app import dp, start_app, db_engine
-from model import TelegramUser, Answer
+from common.model import TelegramUser, Answer
 from foostest import FoosTest
-from questions import (
+from common.questions import (
     questions, TOTAL_QUESTIONS, get_previous_question_code, get_last_question_code,
     FoosTestQuestion, FoosTestOpenQuestion
 )
