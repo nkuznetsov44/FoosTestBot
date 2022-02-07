@@ -63,8 +63,13 @@ function App() {
       const allAnswersAreChecked = selectedUserAnswers
         .map((answer) => !_.isNull(answer.is_correct))
         .reduce((v1, v2) => v1 && v2);
+      let className = "unchecked";
+      if (allAnswersAreChecked) {
+        if (score >= 23) className = "checked-passed";
+        else className = "checked-failed"
+      }
       return (
-        <h2 className={allAnswersAreChecked ? "checked" : "unchecked"}>Score: {score}/{totalScore}</h2>
+        <h2 className={className}>Score: {score}/{totalScore}</h2>
       )
     }
     return <div />;
@@ -72,7 +77,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Foos test results</h1>
+      <h1>Результаты теста арбитра ITSF</h1>
       <section className="users">
         <DataGrid
           dataSource={users}
@@ -96,7 +101,7 @@ function App() {
           dataSource={selectedUserAnswers}
           showBorders={true}
           hoverStateEnabled={true}
-          columnAutoWidth={true}
+          wordWrapEnabled={true}
           rowAlternationEnabled={true}
           onSaved={onSaved}
         >
@@ -106,10 +111,13 @@ function App() {
             allowUpdating={true}
             allowAdding={false}
             allowDeleting={false} />
-          <Column dataField="question" allowEditing={false} />
-          <Column dataField="answer" allowEditing={false} />
-          <Column dataField="is_correct" allowEditing={true} />
-          <Column dataField="answer_time" allowEditing={false} />
+          <Column dataField="question" width="5%" alignment="right" caption="#" allowEditing={false} />
+          <Column dataField="question_text" width="50%" alignment="left" caption="Вопрос" allowEditing={false} />
+          <Column dataField="answer" width="5%" alignment="left" caption="Ответ" allowEditing={false} />
+          <Column dataField="correct_answer_index" width="5%" alignment="left" caption="Номер верного ответа" allowEditing={false} />
+          <Column dataField="correct_answer" width="20%" alignment="left" caption="Текст верного ответа" allowEditing={false} />
+          <Column dataField="is_correct" width="5%" alignment="center" caption="Ответ верный?" allowEditing={true} />
+          <Column dataField="answer_time" width="10%" alignment="left" caption="Время" allowEditing={false} />
         </DataGrid>
       </section>
     </div>

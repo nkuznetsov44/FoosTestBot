@@ -77,7 +77,7 @@ async def send_poll_from_question(
         raise ValueError(f'Cant create poll for {question_obj} of type {type(question_obj)}')
     poll_message = await dp.bot.send_poll(
         chat_id=chat_id,
-        question=question_obj.text,
+        question=question_obj.text_with_enumeration,
         options=question_obj.options,
         is_anonymous=False,
         type='regular',
@@ -99,7 +99,7 @@ async def send_open_question(
         raise ValueError(f'{question_obj} is not an open question, but {type(question_obj)}')
     return await dp.bot.send_message(
         chat_id=chat_id,
-        text=question_obj.text,
+        text=question_obj.text_with_enumeration,
         reply_markup=ReplyKeyboardRemove(),
     )
 

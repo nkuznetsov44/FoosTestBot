@@ -2,8 +2,12 @@ h1 {
   margin: 10px;
 }
 
-h2.checked {
+h2.checked-passed {
   color: green;
+}
+
+h2.checked-failed {
+  color: red;
 }
 
 h2.unchecked {
@@ -14,6 +18,10 @@ section {
   margin: 10px;
 }
 
-.users, .answers {
+.users {
   width: 600px;
+}
+
+.answers {
+  width: calc(100% - 20px);
 }

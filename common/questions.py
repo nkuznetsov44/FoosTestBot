@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 
 class FoosTestQuestionBase:
@@ -8,11 +8,37 @@ class FoosTestQuestionBase:
 
     @property
     def text(self) -> str:
+        return self._question
+
+    @property
+    def text_with_enumeration(self) -> str:
         return f'Вопрос {self._number} из {TOTAL_QUESTIONS}:\n{self._question}'
+
+    @property
+    def question(self) -> str:
+        return f'q{self._number}'
+
+    @property
+    def correct_answer_index(self) -> Optional[int]:
+        raise NotImplementedError()
+
+    @property
+    def correct_answer(self) -> str:
+        raise NotImplementedError()
 
 
 class FoosTestOpenQuestion(FoosTestQuestionBase):
-    pass
+    def __init__(self, number: int, question: str, correct_answer: str) -> None:
+        super().__init__(number, question)
+        self._correct_answer = correct_answer
+
+    @property
+    def correct_answer_index(self) -> Optional[int]:
+        return None
+
+    @property
+    def correct_answer(self) -> str:
+        return self._correct_answer
 
 
 class FoosTestQuestion(FoosTestQuestionBase):
@@ -50,7 +76,7 @@ questions = {
         number=1,
         question='Наказание за запрос третьего тайм-аута – технический фол.',
         options=['Да', 'Нет'],
-        correct_answer_index=0,
+        correct_answer_index=1,
     ),
     'q2': FoosTestQuestion(
         number=2,
@@ -76,7 +102,7 @@ questions = {
             'изначально подавал этот мяч'
         ),
         options=['Да', 'Нет'],
-        correct_answer_index=0,
+        correct_answer_index=1,
     ),
     'q5': FoosTestQuestion(
         number=5,
@@ -88,7 +114,7 @@ questions = {
         number=6,
         question='Сбросы аккумулируются на протяжении матча.',
         options=['Да', 'Нет'],
-        correct_answer_index=0,
+        correct_answer_index=1,
     ),
     'q7': FoosTestQuestion(
         number=7,
@@ -98,7 +124,7 @@ questions = {
             'противника.'
         ),
         options=['Да', 'Нет'],
-        correct_answer_index=0,
+        correct_answer_index=1,
     ),
     'q8': FoosTestQuestion(
         number=8,
@@ -130,7 +156,7 @@ questions = {
         number=11,
         question='Какое наказание предусмотрено за получение третьего тайм-аута за одну игру?',
         options=['Предупреждение', 'Потеря владения', 'Технический фол'],
-        correct_answer_index=0,
+        correct_answer_index=2,
     ),
     'q12': FoosTestQuestion(
         number=12,
@@ -143,7 +169,7 @@ questions = {
             'Ввести мяч в игру путем подачи',
             'Продолжить игру из текущей позиции или подать мяч'
         ],
-        correct_answer_index=0,
+        correct_answer_index=2,
     ),
     'q13': FoosTestQuestion(
         number=13,
@@ -153,7 +179,7 @@ questions = {
             'Подача мяча противником',
             'Технический фол'
         ],
-        correct_answer_index=0,
+        correct_answer_index=1,
     ),
     'q14': FoosTestQuestion(
         number=14,
@@ -167,7 +193,7 @@ questions = {
             'Нет нарушения – Гол засчитывается.',
             'Пас не по правилам (остановленный мяч) – Гол не засчитывается – Противник вводит мяч с 1-й линии.'
         ],
-        correct_answer_index=0,
+        correct_answer_index=1,
     ),
     'q15': FoosTestQuestion(
         number=15,
@@ -177,7 +203,7 @@ questions = {
             'Подача мяча противником',
             'Технический фол'
         ],
-        correct_answer_index=0,
+        correct_answer_index=2,
     ),
     'q16': FoosTestQuestion(
         number=16,
@@ -187,7 +213,7 @@ questions = {
             'На выбор противника: продолжение игры или его подача',
             'Технический фол'
         ],
-        correct_answer_index=0,
+        correct_answer_index=1,
     ),
     'q17': FoosTestQuestion(
         number=17,
@@ -200,7 +226,7 @@ questions = {
             'Потеря владения',
             'Технический фол'
         ],
-        correct_answer_index=0,
+        correct_answer_index=1,
     ),
     'q18': FoosTestQuestion(
         number=18,
@@ -224,7 +250,7 @@ questions = {
             'через одну секунду после того, как мяч касается второй фигурки игрока',
             'как только мяч сдвигается с места'
         ],
-        correct_answer_index=0,
+        correct_answer_index=1,
     ),
     'q20': FoosTestQuestion(
         number=20,
@@ -234,7 +260,7 @@ questions = {
             'только взяв тайм-аут',
             'только если это разрешалось бы сделать, если бы не был объявлен судейский тайм-аут'
         ],
-        correct_answer_index=0,
+        correct_answer_index=2,
     ),
     'q21': FoosTestOpenQuestion(
         number=21,
@@ -242,51 +268,60 @@ questions = {
             'Ответы на открытые вопросы (без вариантов ответа) просто пишите в сообщении. '
             'Изменить такие ответы будет нельзя. Вы все еще можете переголосовать в вопросах с вариантами ответов.\n'
             'Каково разрешенное время владения на 1-й линии?'
-        )
+        ),
+        correct_answer='15 секунд',
     ),
     'q22': FoosTestOpenQuestion(
         number=22,
         question='Каково разрешенное время владения на 2-й линии?',
+        correct_answer='10 секунд',
     ),
     'q23': FoosTestOpenQuestion(
         number=23,
         question='Каково разрешенное время владения на 3-й линии?',
+        correct_answer='15 секунд',
     ),
     'q24': FoosTestOpenQuestion(
         number=24,
         question='Каково разрешенное время тайм-аута?',
+        correct_answer='30 секунд',
     ),
     'q25': FoosTestOpenQuestion(
         number=25,
         question='Каково разрешенное время промежутка между играми?',
+        correct_answer='90 секунд',
     ),
     'q26': FoosTestOpenQuestion(
         number=26,
         question=(
             'Изначально мяч подавала команда А. С какой линии мяч вводится в игру после того, как '
             'он остановился в мертвой зоне между 2-ми линиями?'
-        )
+        ),
+        correct_answer='Средняя линия команды А',
     ),
     'q27': FoosTestOpenQuestion(
         number=27,
         question=(
             'Изначально мяч подавала команда А. С какой линии мяч вводится в игру после того, как '
             'он остановился в мертвой зоне рядом с 3-й линией команды Б?'
-        )
+        ),
+        correct_answer='Линия защиты команды А',
     ),
     'q28': FoosTestOpenQuestion(
         number=28,
         question=(
             'Изначально мяч подавала команда А. С какой линии мяч вводится в игру после того, как '
             'он остановился в мертвой зоне защитника команды А?'
-        )
+        ),
+        correct_answer='Линия защиты команды А',
     ),
     'q29': FoosTestOpenQuestion(
         number=29,
         question=(
             'Изначально мяч подавала команда А. С какой линии мяч вводится в игру после того, как '
             'он был выброшен за пределы стола игроком команды Б?'
-        )
+        ),
+        correct_answer='Линия защиты команды А',
     ),
     'q30': FoosTestOpenQuestion(
         number=30,
@@ -294,7 +329,8 @@ questions = {
             'Это последний вопрос. После ответа на него смена голосов в опросах не будет засчитана.\n'
             'Изначально мяч подавала команда А. С какой линии мяч вводится в игру после того, как '
             'команда А превысила время владения на 3-й линии?'
-        )
+        ),
+        correct_answer='Линия защиты команды B',
     ),
 }
 

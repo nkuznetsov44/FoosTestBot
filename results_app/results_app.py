@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from settings import database_uri
 from common.model import TelegramUser, Answer
+from common.dto import AnswerDto
 
 
 app = Flask(__name__)
@@ -24,8 +25,8 @@ def users() -> Response:
 def answers(user_id: int) -> Response:
     db_session = DbSession()
     try:
-        answers = db_session.query(Answer).filter(Answer.user_id == user_id)
-        return jsonify(Answer.serialize_list(answers))
+        answers = list(map(AnswerDto.from_model, db_session.query(Answer).filter(Answer.user_id == user_id)))
+        return jsonify(answers)
     finally:
         DbSession.remove()
 
