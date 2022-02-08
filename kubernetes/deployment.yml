@@ -18,7 +18,6 @@ spec:
         - name: foostestbot
           image: nkuznetsov44/foostestbot:latest
           imagePullPolicy: Always
-          container_name: foostestbot
           ports:
             - containerPort: 8000
           env:
