@@ -13,10 +13,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: foostestbot-results
+  name: foostest-results
 spec:
   selector:
-    app: foostestbot-results
+    app: foostes-results
   ports:
     - protocol: TCP
       port: 80
