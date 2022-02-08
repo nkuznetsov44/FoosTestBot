@@ -1,4 +1,4 @@
-from typing import List, Dict, Union, Optional
+from typing import Any, List, Dict, Union, Optional
 import logging
 from datetime import datetime
 from sqlalchemy import create_engine
@@ -81,9 +81,20 @@ class FoosTestService:
         db_session = self.DbSession()
         try:
             test_session = db_session.query(TestSession).get(test_session_id)
-            answers = self._save_user_answers(test_session.id, answers)
+            checked_answers = self.check_answers(answers)
+            logger.info(f'Saving answers {answers} for test session {test_session_id}')
+            ans = []
+            for question_code in answers.keys():
+                answer = Answer(
+                    test_session_id=test_session.id,
+                    question=question_code,
+                    answer=answers[question_code],
+                    is_correct=checked_answers[question_code]
+                )
+                db_session.add(answer)
+                ans.append(answer)
             test_session.end_time = datetime.now()
-            test_session.score = self._calculate_score(answers)
+            test_session.score = self._calculate_score(ans)
             db_session.commit()
             logger.info(f'Ended test session {test_session_id} at {test_session.end_time}')
             return TestSessionDto.from_model(test_session)
@@ -108,31 +119,9 @@ class FoosTestService:
             res[question_code] = answer_is_correct
         return res
 
-    def _calculate_score(self, answers: List[AnswerDto]) -> int:
+    def _calculate_score(self, answers: List[Answer]) -> int:
         s = 0
         for answer in answers:
             if answer.is_correct:
                 s += 1
         return s
-
-    def _save_user_answers(self, test_session_id: int, answers: Dict[str, Union[int, str]]) -> List[AnswerDto]:
-        ret: List[Answer] = []
-        db_session = self.DbSession()
-        try:
-            logger.info(f'Saving test session id={test_session_id} answers {answers}')
-            test_session = db_session.query(TestSession).get(test_session_id)
-            checked_answers = self.check_answers(answers)
-            for question_code in answers.keys():
-                answer = Answer(
-                    test_session_id=test_session.id,
-                    question=question_code,
-                    answer=answers[question_code],
-                    is_correct=checked_answers[question_code]
-                )
-                db_session.add(answer)
-                ret.append(answer)
-            db_session.commit()
-            logger.info(f'Saved test session id={test_session_id} answers')
-            return list(map(AnswerDto.from_model, ret))
-        finally:
-            self.DbSession.remove()
