@@ -146,10 +146,10 @@ spec:
                 configMapKeyRef:
                   name: foostestbot-config
                   key: env.TZ
-            volumeMounts:
-              - mounthPath: /var/lib/mysql
-                name: mariadb-data
-              - mountPath: /docker-entrypoint-initdb.d/schema.sql
+          volumeMounts:
+            - mounthPath: /var/lib/mysql
+              name: mariadb-data
+            - mountPath: /docker-entrypoint-initdb.d/schema.sql
 ---
 apiVersion: apps/v1
 kind: Deployment
