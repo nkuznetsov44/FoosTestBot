@@ -1,0 +1,284 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: foostestbot
+  labels:
+    app: foostestbot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: foostestbot
+  template:
+    metadata:
+      labels:
+        app: foostestbot
+    spec:
+      containers:
+        - name: foostestbot
+          image: nkuznetsov44/foostestbot:latest
+          imagePullPolicy: Always
+          container_name: foostestbot
+          ports:
+            - containerPort: 8000
+          env:
+            - name: TELEGRAM_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: foostestbot-secrets
+                  key: TELEGRAM_TOKEN
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: foostestbot-secrets
+                  key: MYSQL_PASSWORD
+            - name: WEBHOOK_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.WEBHOOK_HOST
+            - name: MYSQL_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.MYSQL_USER
+            - name: MYSQL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.MYSQL_HOST
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.MYSQL_DATABASE
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.REDIS_HOST
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.REDIS_PORT
+            - name: REDIS_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.REDIS_DB
+            - name: WEBHOOK_PATH
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.WEBHOOK_PATH
+            - name: WEBAPP_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.WEBAPP_HOST
+            - name: WEBAPP_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.WEBAPP_PORT
+            - name: TZ
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.TZ
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.LOG_LEVEL
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: foostestbot-mariadb
+  labels:
+    app: foostestbot-mariadb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: foostestbot-mariadb
+  template:
+    metadata:
+      labels:
+        app: foostestbot-mariadb
+    spec:
+      volumes:
+        - name: mariadb-data
+          persistentVolumeClaim:
+            claimName: foostestbot-mariadb-data
+        - name: mariadb-initdb
+          configMap:
+            name: foostestbot-config
+            items:
+              - key: mariadb.schema.sql
+                path: schema.sql
+      containers:
+        - name: foostestbot-mariadb
+          image: mariadb:latest
+          container_name: foostestbot-mariadb
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MARIADB_ALLOW_EMPTY_ROOT_PASSWORD
+              value: "yes"
+            - name: MYSQL_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.MYSQL_USER
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.MYSQL_DATABASE
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: foostestbot-secrets
+                  key: MYSQL_PASSWORD
+            - name: TZ
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.TZ
+            volumeMounts:
+              - mounthPath: /var/lib/mysql
+                name: mariadb-data
+              - mountPath: /docker-entrypoint-initdb.d/schema.sql
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: foostestbot-redis
+  labels:
+    app: foostestbot-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: foostestbot-redis
+  template:
+    metadata:
+      labels:
+        app: foostestbot-redis
+    spec:
+      volumes:
+        - name: redis-config
+          configMap:
+            name: foostestbot-config
+            items:
+              - key: redis.conf
+                path: redis.conf
+      containers:
+        - name: foostestbot-redis
+          image: redis:latest
+          container_name: foostestbot-redis
+          command:
+            - redis-server
+            - "/usr/local/etc/redis/redis.conf"
+          ports:
+            - containerPort: 6379
+          volumeMounts:
+            - mountPath: /usr/local/etc/redis/redis.conf
+              name: redis-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: foostestbot-phpmyadmin
+  labels:
+    app: foostestbot-phpmyadmin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: foostestbot-phpmyadmin
+  template:
+    metadata:
+      labels:
+        app: foostestbot-phpmyadmin
+    spec:
+      containers:
+        - name: foostestbot-phpmyadmin
+          image: phpmyadmin:latest
+          container_name: foostestbot-phpmyadmin
+          ports:
+            - containerPort: 80
+          env:
+            - name: PMA_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.MYSQL_HOST
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: foostestbot-results
+  labels:
+    app: foostestbot-results
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: foostestbot-results
+  template:
+    metadata:
+      labels:
+        app: foostestbot-results
+    spec:
+      containers:
+        - name: foostestbot-results-frontend
+          image: nkuznetsov44/foostestbot-results-frontend:latest
+          container_name: foostestbot-results_frontend
+          ports:
+            - containerPort: 80
+          env:
+            - name: TZ
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.TZ
+        - name: foostestbot-results-app
+          image: nkuznetsov44/foostestbot-results-app:latest
+          container_name: foostestbot-results-app
+          ports:
+            - conteinerPort: 8000
+          env:
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: foostestbot-secrets
+                  key: MYSQL_PASSWORD
+            - name: MYSQL_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.MYSQL_USER
+            - name: MYSQL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.MYSQL_HOST
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.MYSQL_DATABASE
+            - name: TZ
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.TZ
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: foostestbot-config
+                  key: env.LOG_LEVEL

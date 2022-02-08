@@ -1,0 +1,45 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: foostestbot.nkuznetsov.com
+  annotations:
+    cert-manager.io/issuer: letsencrypt
+spec:
+  tls:
+  - hosts:
+    - foostestbot.nkuznetsov.com
+    secretName: foostestbot-tls-secret
+  rules:
+    - host: foostestbot.nkuznetsov.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: foostestbot
+                port:
+                  number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: foostestresults.nkuznetsov.com
+  annotations:
+    cert-manager.io/issuer: letsencrypt
+spec:
+  tls:
+  - hosts:
+    - foostestresults.nkuznetsov.com
+    secretName: foostestresults-tls-secret
+  rules:
+    - host: foostestresults.nkuznetsov.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: foostestbot-results
+                port:
+                  number: 80

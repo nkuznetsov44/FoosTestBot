@@ -61,18 +61,21 @@ const App = () => {
   return (
     <div className="App">
       <h1>Результаты теста арбитра ITSF</h1>
+      <h3>Участники</h3>
       <section className="users">
         <UsersTable
           users={users}
           onUserSelectionChanged={onUserSelectionChanged}
         />
       </section>
+      <h3>Тест-сессии</h3>
       <section className="testSessions">
         <TestSessionsTable
           testSessions={testSessions}
           onTestSessionSelectionChanged={onTestSessionSelectionChanged}
         />
       </section>
+      <h3>Ответы</h3>
       <section className="answers">
         <AnswersTable
           testSessionId={selectedTestSessionId}

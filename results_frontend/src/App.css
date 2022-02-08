@@ -1,9 +1,9 @@
-h1 {
+h3 {
   margin: 10px;
 }
 
-section {
-  margin: 10px;
+h1, section {
+  margin: 10px 10px 25px 10px;
 }
 
 .users, .testSessions {

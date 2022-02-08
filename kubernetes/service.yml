@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: foostestbot
+spec:
+  selector:
+    app: foostestbot
+    ports:
+      - protocol: TCP
+        port: 80
+        targetPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: foostestbot-results
+spec:
+  selector:
+    app: foostestbot-results
+    ports:
+      - protocol: TCP
+        port: 80
+        targetPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: foostestbot-phpmyadmin
+spec:
+  selector:
+    app: foostestbot-phpmyadmin
+    ports:
+      - protocol: TCP
+        port: 80
+        targetPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: foostestbot-mariadb
+spec:
+  selector:
+    app: foostestbot-mariadb
+    ports:
+      - protocol: TCP
+        port: 3306
+        targetPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: foostestbot-redis
+spec:
+  selector:
+    app: foostestbot-redis
+    ports:
+      - protocol: TCP
+        port: 6379
+        targetPort: 6379
