@@ -5,9 +5,9 @@ import React from "react";
 import axios from "axios";
 import * as _ from 'lodash';
 import DataGrid, { Column, Selection, Scrolling, Editing } from 'devextreme-react/data-grid';
-import './components/UsersTable';
-import './components/TestSessionsTable';
-import './components/AnswersTable';
+import { UsersTable} from './components/UsersTable';
+import { TestSessionsTable } from './components/TestSessionsTable';
+import { AnswersTable } from './components/AnswersTable';
 
 const App = () => {
   const [users, setUsers] = React.useState([]);
@@ -62,7 +62,7 @@ const App = () => {
         />
       </section>
       <section className="testSessions">
-        <TestSessionTable
+        <TestSessionsTable
           testSessions={testSessions}
           onTestSessionSelectionChanged={onTestSessionSelectionChanged}
         />

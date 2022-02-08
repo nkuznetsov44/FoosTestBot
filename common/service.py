@@ -115,6 +115,7 @@ class FoosTestService:
             for answer_id, is_correct in checked_answers.items():
                 answer = db_session.query(Answer).get(answer_id)
                 answer.is_correct = is_correct
+            # TODO: recalc score
             db_session.commit()
             logger.info(f'Saved checked answers {checked_answers}')
         finally:

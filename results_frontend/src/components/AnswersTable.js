@@ -8,12 +8,12 @@ export const AnswersTable = (props) => {
   const onSaved = ({ changes }) => {
     const data = changes.map((change) => change.data);
     axios.post(
-      '/api/answers/changes', data
+      '/api/answers/checked', data
     ).then((response) => {
       notify('Ответы сохранены', 'success', 2000);
     }).catch((error) => {
       console.log(error);
-      notify('Ошибка сохранения ответов', error, 2000);
+      notify('Ошибка сохранения ответов', 'error', 2000);
     });
   };
 
