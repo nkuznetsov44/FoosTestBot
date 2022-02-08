@@ -40,6 +40,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: foostestbot-results
+                name: foostest-results-frontend
                 port:
                   number: 80
