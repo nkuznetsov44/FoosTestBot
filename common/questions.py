@@ -1,6 +1,9 @@
 from typing import List, Optional
 
 
+MAX_POLL_OPTION_LENGTH = 100
+
+
 class FoosTestQuestionBase:
     def __init__(self, number: int, question: str) -> None:
         self._number = number
@@ -44,6 +47,11 @@ class FoosTestOpenQuestion(FoosTestQuestionBase):
 class FoosTestQuestion(FoosTestQuestionBase):
     def __init__(self, number: int, question: str, options: List[str], correct_answer_index: int) -> None:
         super().__init__(number, question)
+        for option in options:
+            if len(option) > MAX_POLL_OPTION_LENGTH:
+                raise ValueError(
+                    f'Option {option} length {len(option)} exceeds max option length {MAX_POLL_OPTION_LENGTH}'
+                )
         self._options = options
         self._correct_answer_index = correct_answer_index
 
@@ -186,9 +194,9 @@ questions = {
             'на средней линии его партнера. Как расценивается такая ситуация с точки зрения правил?'
         ),
         options=[
-            'Пас не по правилам (остановленный мяч). Гол не засчитывается. Подача противников.',
-            'Нет нарушения. Гол засчитывается.',
-            'Пас не по правилам (остановленный мяч). Гол не засчитывается. Противник вводит мяч в игру с линии защиты.'
+            'Пас не по правилам (остановленный мяч). Гол не засчитывается. Подача противников',
+            'Нет нарушения. Гол засчитывается',
+            'Пас не по правилам (остановленный мяч). Гол не засчитан. Противник вводит мяч в игру с линии защиты'
         ],
         correct_answer_index=1,
     ),
@@ -233,9 +241,9 @@ questions = {
             'в ворота косым ударом с линии нападения. Как расценивается такая ситуация с точки зрения правил?'
         ),
         options=[
-            'Пас не по правилам (остановленный мяч). Гол не засчитывается. Подача противников.',
-            'Пас не по правилам (остановленный мяч). Гол не засчитывается. Противник вводит мяч в игру с линии защиты.',
-            'Нет нарушения. Гол засчитывается.'
+            'Пас не по правилам (остановленный мяч). Гол не засчитывается. Подача противников',
+            'Пас не по правилам (остановленный мяч). Гол не засчитан. Противник вводит мяч в игру с линии защиты',
+            'Нет нарушения. Гол засчитывается'
         ],
         correct_answer_index=0,
     ),
@@ -247,7 +255,7 @@ questions = {
             'через одну секунду после того, как мяч касается второй фигурки игрока',
             'как только мяч сдвигается с места'
         ],
-        correct_answer_index=1,
+        correct_answer_index=0,
     ),
     'q20': FoosTestQuestion(
         number=20,

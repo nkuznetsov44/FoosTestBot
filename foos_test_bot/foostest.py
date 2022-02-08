@@ -33,3 +33,4 @@ class FoosTest(StatesGroup):
     q29 = State()
     q30 = State()
     end = State()
+    results = State()

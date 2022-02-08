@@ -78,6 +78,14 @@ class FoosTestService:
         finally:
             self.DbSession.remove()
 
+    def get_test_session(self, test_session_id: int) -> TestSessionDto:
+        db_session = self.DbSession()
+        try:
+            test_session = db_session.query(TestSession).get(test_session_id)
+            return TestSessionDto.from_model(test_session)
+        finally:
+            self.DbSession.remove()
+
     def end_test_session(self, test_session_id: int, answers: Dict[str, Union[int, str]]) -> TestSessionDto:
         db_session = self.DbSession()
         try:
