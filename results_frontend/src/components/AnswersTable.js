@@ -1,6 +1,6 @@
 import React from "react";
 import axios from "axios";
-import DataGrid, { Column, Selection, Editing, Scrolling } from 'devextreme-react/data-grid';
+import DataGrid, { Column, Editing, Paging } from 'devextreme-react/data-grid';
 import notify from 'devextreme/ui/notify';
 
 export const AnswersTable = (props) => {
@@ -27,7 +27,7 @@ export const AnswersTable = (props) => {
       rowAlternationEnabled={true}
       onSaved={onSaved}
     >
-      <Scrolling mode="virtual" />
+      <Paging defaultPageSize={30} />
       <Editing
         mode="batch"
         allowUpdating={true}

@@ -4,7 +4,6 @@ import './App.css';
 import React from "react";
 import axios from "axios";
 import * as _ from 'lodash';
-import DataGrid, { Column, Selection, Scrolling, Editing } from 'devextreme-react/data-grid';
 import { UsersTable} from './components/UsersTable';
 import { TestSessionsTable } from './components/TestSessionsTable';
 import { AnswersTable } from './components/AnswersTable';
@@ -44,6 +43,7 @@ const App = () => {
     const selectedUser = selectedRowsData[0];
     if (!_.isNull(selectedUser)) {
       setSelectedUserId(selectedUser.user_id);
+      setTestSessionsNeedUpdate(true);
     }
   };
 
@@ -51,7 +51,6 @@ const App = () => {
     const selectedTestSession = selectedRowsData[0];
     if (!_.isNull(selectedTestSession)) {
       setSelectedTestSessionId(selectedTestSession.id);
-      setTestSessionsNeedUpdate(true);
     }
   };
 
