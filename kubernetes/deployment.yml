@@ -247,7 +247,7 @@ spec:
           image: nkuznetsov44/foostest-results-app:latest
           imagePullPolicy: Always
           ports:
-            - conteinerPort: 8000
+            - containerPort: 8000
           env:
             - name: MYSQL_PASSWORD
               valueFrom:
