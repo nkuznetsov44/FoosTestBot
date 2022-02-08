@@ -115,9 +115,6 @@ spec:
         - name: mariadb-initdb
           configMap:
             name: foostestbot-config
-            items:
-              - key: mariadb.schema.sql
-                path: schema.sql
       containers:
         - name: foostestbot-mariadb
           image: mariadb:latest
@@ -151,6 +148,7 @@ spec:
               name: mariadb-data
             - mountPath: /docker-entrypoint-initdb.d/schema.sql
               name: mariadb-initdb
+              subPath: mariadb.schema.sql
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -172,9 +170,6 @@ spec:
         - name: redis-config
           configMap:
             name: foostestbot-config
-            items:
-              - key: redis.conf
-                path: redis.conf
       containers:
         - name: foostestbot-redis
           image: redis:latest
@@ -186,6 +181,7 @@ spec:
           volumeMounts:
             - mountPath: /usr/local/etc/redis/redis.conf
               name: redis-config
+              subPath: redis.conf
 ---
 apiVersion: apps/v1
 kind: Deployment
