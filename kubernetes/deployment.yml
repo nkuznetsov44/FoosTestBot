@@ -218,18 +218,18 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: foostest-results
+  name: foostest-results-frontend
   labels:
-    app: foostest-results
+    app: foostest-results-frontend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: foostest-results
+      app: foostest-results-frontend
   template:
     metadata:
       labels:
-        app: foostest-results
+        app: foostest-results-frontend
     spec:
       containers:
         - name: foostest-results-frontend
@@ -243,6 +243,24 @@ spec:
                 configMapKeyRef:
                   name: foostestbot-config
                   key: env.TZ
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: foostest-results-app
+  labels:
+    app: foostest-results-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: foostest-results-app
+  template:
+    metadata:
+      labels:
+        app: foostest-results-app
+    spec:
+      containers:
         - name: foostest-results-app
           image: nkuznetsov44/foostest-results-app:latest
           imagePullPolicy: Always
