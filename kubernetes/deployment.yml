@@ -237,7 +237,8 @@ spec:
       containers:
         - name: foostestbot-results-frontend
           image: nkuznetsov44/foostestbot-results-frontend:latest
-          container_name: foostestbot-results_frontend
+          imagePullPolicy: Always
+          container_name: foostest-results_frontend
           ports:
             - containerPort: 80
           env:
@@ -247,7 +248,8 @@ spec:
                   name: foostestbot-config
                   key: env.TZ
         - name: foostestbot-results-app
-          image: nkuznetsov44/foostestbot-results-app:latest
+          image: nkuznetsov44/foostest-results-app:latest
+          imagePullPolicy: Always
           container_name: foostestbot-results-app
           ports:
             - conteinerPort: 8000
