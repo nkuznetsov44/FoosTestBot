@@ -83,10 +83,7 @@ async def send_poll_from_question(
     return poll_message
 
 
-async def send_open_question(
-    chat_id: Union[int, str],
-    question: str,
-) -> Message:
+async def send_open_question(chat_id: Union[int, str], question: str) -> Message:
     question_obj = questions[question]
     if not isinstance(question_obj, FoosTestOpenQuestion):
         raise ValueError(f'{question_obj} is not an open question, but {type(question_obj)}')
