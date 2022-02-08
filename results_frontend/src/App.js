@@ -4,10 +4,12 @@ import './App.css';
 import React from "react";
 import axios from "axios";
 import * as _ from 'lodash';
-import 'devextreme/dist/css/dx.light.css';
 import DataGrid, { Column, Selection, Scrolling, Editing } from 'devextreme-react/data-grid';
+import './components/UsersTable';
+import './components/TestSessionsTable';
+import './components/AnswersTable';
 
-function App() {
+const App = () => {
   const [users, setUsers] = React.useState([]);
   const [selectedUserId, setSelectedUserId] = React.useState(null);
   const [testSessions, setTestSessions] = React.useState([]);
@@ -29,7 +31,7 @@ function App() {
   }, [selectedUserId]);
 
   React.useEffect(() => {
-    if (!_.isNull(selectedUserId)) {
+    if (!_.isNull(selectedTestSessionId)) {
       axios.get(`/api/answers/${selectedTestSessionId}`).then((response) => {
         setAnswers(response.data);
       });
@@ -50,97 +52,26 @@ function App() {
     }
   };
 
-  const onSaved = ({ changes }) => {
-    const data = changes.map((change) => change.data);
-    axios.post(
-      '/api/answers/changes', data
-    ).then((response) => {
-      console.log(response);
-    });
-  };
-
-  /*const selectedUserScoreElement = () => {
-    if (!_.isNull(selectedUserId) && !_.isNull(answers)) {
-      const score = selectedUserAnswers
-        .map((answer) => answer.is_correct)
-        .reduce((v1, v2) => v1 + v2);
-      const totalScore = selectedUserAnswers
-        .map((answer) => !_.isNull(answer.is_correct))
-        .reduce((v1, v2) => v1 + v2);
-      const allAnswersAreChecked = selectedUserAnswers
-        .map((answer) => !_.isNull(answer.is_correct))
-        .reduce((v1, v2) => v1 && v2);
-      let className = "unchecked";
-      if (allAnswersAreChecked) {
-        if (score >= 23) className = "checked-passed";
-        else className = "checked-failed"
-      }
-      return (
-        <h2 className={className}>Score: {score}/{totalScore}</h2>
-      )
-    }
-    return <div />;
-  };*/
-
   return (
     <div className="App">
       <h1>Результаты теста арбитра ITSF</h1>
       <section className="users">
-        <DataGrid
-          dataSource={users}
-          showBorders={true}
-          hoverStateEnabled={true}
-          columnAutoWidth={true}
-          keyExpr="user_id"
-          onSelectionChanged={onUserSelectionChanged}
-        >
-          <Selection mode="single" />
-          <Column dataField="username" />
-          <Column dataField="first_name" />
-          <Column dataField="last_name" />
-        </DataGrid>
+        <UsersTable
+          users={users}
+          onUserSelectionChanged={onUserSelectionChanged}
+        />
       </section>
       <section className="testSessions">
-        <DataGrid
-          dataSource={testSessions}
-          showBorders={true}
-          hoverStateEnabled={true}
-          columnAutoWidth={true}
-          keyExpr="id"
-          onSelectionChanged={onTestSessionSelectionChanged}
-        >
-          <Selection mode="single" />
-          <Column dataField="id" />
-          <Column dataField="start_time" />
-          <Column dataField="end_time" />
-          <Column dataField="score" />
-        </DataGrid>
+        <TestSessionTable
+          testSessions={testSessions}
+          onTestSessionSelectionChanged={onTestSessionSelectionChanged}
+        />
       </section>
       <section className="answers">
-        <DataGrid
-          dataSource={answers}
-          showBorders={true}
-          hoverStateEnabled={true}
-          wordWrapEnabled={true}
-          rowAlternationEnabled={true}
-          onSaved={onSaved}
-        >
-          <Scrolling mode="virtual" />
-          <Editing
-            mode="batch"
-            allowUpdating={true}
-            allowAdding={false}
-            allowDeleting={false} />
-          <Column dataField="question.code" width="5%" alignment="right" caption="#" allowEditing={false} />
-          <Column dataField="question.text" width="50%" alignment="left" caption="Вопрос" allowEditing={false} />
-          <Column dataField="answer" width="5%" alignment="left" caption="Ответ" allowEditing={false} />
-          <Column dataField="question.correct_answer_index" width="5%" alignment="left" caption="Номер верного ответа" allowEditing={false} />
-          <Column dataField="question.correct_answer_text" width="20%" alignment="left" caption="Текст верного ответа" allowEditing={false} />
-          <Column dataField="is_correct" width="5%" alignment="center" caption="Ответ верный?" allowEditing={true} />
-        </DataGrid>
+        <AnswersTable answers={answers} />
       </section>
     </div>
   );
-}
+};
 
 export default App;
