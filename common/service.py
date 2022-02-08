@@ -81,7 +81,7 @@ class FoosTestService:
         db_session = self.DbSession()
         try:
             test_session = db_session.query(TestSession).get(test_session_id)
-            checked_answers = self.check_answers(answers)
+            checked_answers = self._check_answers(answers)
             logger.info(f'Saving answers {answers} for test session {test_session_id}')
             ans = []
             for question_code in answers.keys():
@@ -109,7 +109,18 @@ class FoosTestService:
         finally:
             self.DbSession.remove()
 
-    def check_answers(self, answers: Dict[str, Union[int, str]]) -> Dict[str, Optional[bool]]:
+    def process_checked_answers(self, checked_answers: Dict[str, bool]) -> None:
+        db_session = self.DbSession()
+        try:
+            for answer_id, is_correct in checked_answers.items():
+                answer = db_session.query(Answer).get(answer_id)
+                answer.is_correct = is_correct
+            db_session.commit()
+            logger.info(f'Saved checked answers {checked_answers}')
+        finally:
+            self.DbSession.remove()
+
+    def _check_answers(self, answers: Dict[str, Union[int, str]]) -> Dict[str, Optional[bool]]:
         res: Dict[str, Optional[bool]] = {}
         for question_code, answer in answers.items():
             question: Union[FoosTestQuestion, FoosTestOpenQuestion] = questions[question_code]

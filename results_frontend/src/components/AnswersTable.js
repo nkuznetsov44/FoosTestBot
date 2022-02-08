@@ -1,6 +1,7 @@
 import React from "react";
 import axios from "axios";
 import DataGrid, { Column, Selection, Editing, Scrolling } from 'devextreme-react/data-grid';
+import notify from 'devextreme/ui/notify';
 
 export const AnswersTable = (props) => {
 
@@ -9,7 +10,10 @@ export const AnswersTable = (props) => {
     axios.post(
       '/api/answers/changes', data
     ).then((response) => {
-      console.log(response);
+      notify('Ответы сохранены', 'success', 2000);
+    }).catch((error) => {
+      console.log(error);
+      notify('Ошибка сохранения ответов', error, 2000);
     });
   };
 

@@ -22,17 +22,9 @@ def test_session_answers(test_session_id: int) -> Response:
     return jsonify(foos_test_service.get_test_session_answers(test_session_id))
 
 
-"""
-@app.route('/api/answers/changes', methods=['POST'])
-def answers_changes() -> Response:
+@app.route('/api/answers/checked', methods=['POST'])
+def answers_checked() -> Response:
     request_data = request.get_json()
-    db_session = DbSession()
-    try:
-        for answer_change in request_data:
-            answer = db_session.query(Answer).get(answer_change['id'])
-            answer.is_correct = answer_change['is_correct']
-        db_session.commit()
-    finally:
-        DbSession.remove()
+    checked_answers = {answer['id']: answer['is_correct'] for answer in request_data}
+    foos_test_service.process_checked_answers(checked_answers)
     return Response(status=200)
-"""
