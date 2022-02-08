@@ -1,4 +1,4 @@
-from typing import Any, List, Dict, Union, Optional
+from typing import Tuple, List, Dict, Union, Optional
 import logging
 from datetime import datetime
 from sqlalchemy import create_engine
@@ -69,6 +69,7 @@ class FoosTestService:
                 start_time=datetime.now(),
                 end_time=None,
                 score=None,
+                is_checked=False,
             )
             db_session.add(test_session)
             db_session.commit()
@@ -94,30 +95,10 @@ class FoosTestService:
                 db_session.add(answer)
                 ans.append(answer)
             test_session.end_time = datetime.now()
-            test_session.score = self._calculate_score(ans)
+            test_session.score, test_session.is_checked = self._recalc_score(test_session)
             db_session.commit()
             logger.info(f'Ended test session {test_session_id} at {test_session.end_time}')
             return TestSessionDto.from_model(test_session)
-        finally:
-            self.DbSession.remove()
-
-    def get_test_session_answers(self, test_session_id: int) -> List[AnswerDto]:
-        db_session = self.DbSession()
-        try:
-            test_session = db_session.query(TestSession).get(test_session_id)
-            return list(map(AnswerDto.from_model, test_session.answers))
-        finally:
-            self.DbSession.remove()
-
-    def process_checked_answers(self, checked_answers: Dict[str, bool]) -> None:
-        db_session = self.DbSession()
-        try:
-            for answer_id, is_correct in checked_answers.items():
-                answer = db_session.query(Answer).get(answer_id)
-                answer.is_correct = is_correct
-            # TODO: recalc score
-            db_session.commit()
-            logger.info(f'Saved checked answers {checked_answers}')
         finally:
             self.DbSession.remove()
 
@@ -131,9 +112,36 @@ class FoosTestService:
             res[question_code] = answer_is_correct
         return res
 
-    def _calculate_score(self, answers: List[Answer]) -> int:
-        s = 0
-        for answer in answers:
-            if answer.is_correct:
-                s += 1
-        return s
+    def get_test_session_answers(self, test_session_id: int) -> List[AnswerDto]:
+        db_session = self.DbSession()
+        try:
+            test_session = db_session.query(TestSession).get(test_session_id)
+            return list(map(AnswerDto.from_model, test_session.answers))
+        finally:
+            self.DbSession.remove()
+
+    def process_checked_answers(self, test_session_id: int, checked_answers: Dict[str, bool]) -> None:
+        db_session = self.DbSession()
+        try:
+            test_session = db_session.query(TestSession).get(test_session_id)
+            for answer_id, is_correct in checked_answers.items():
+                answer = db_session.query(Answer).get(answer_id)
+                if answer.test_session_id != test_session.id:
+                    raise ValueError(f'Cant check answer {answer} outside of test session {test_session}')
+                answer.is_correct = is_correct
+            test_session.score, test_session.is_checked = self._recalc_score(test_session)
+            db_session.commit()
+            logger.info(f'Saved checked answers {checked_answers}')
+        finally:
+            self.DbSession.remove()
+
+    def _recalc_score(self, test_session: TestSession) -> Tuple[int, bool]:
+        score = 0
+        is_checked = True
+        for answer in test_session.answers:
+            if answer.is_correct is None:
+                is_checked = False
+            elif answer.is_correct:
+                score += 1
+        logger.info(f'Recalc score for test session {test_session}: score={score}, is_checked={is_checked}')
+        return score, is_checked

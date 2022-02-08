@@ -8,9 +8,10 @@ export const AnswersTable = (props) => {
   const onSaved = ({ changes }) => {
     const data = changes.map((change) => change.data);
     axios.post(
-      '/api/answers/checked', data
+      `/api/answers/checked/${props.testSessionId}`, data
     ).then((response) => {
       notify('Ответы сохранены', 'success', 2000);
+      props.onAnswersSaved();
     }).catch((error) => {
       console.log(error);
       notify('Ошибка сохранения ответов', 'error', 2000);
@@ -42,7 +43,7 @@ export const AnswersTable = (props) => {
       />
       <Column
         dataField="question.text"
-        width="50%"
+        width="60%"
         alignment="left"
         caption="Вопрос"
         allowEditing={false}

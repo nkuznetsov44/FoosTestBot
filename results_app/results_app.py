@@ -22,9 +22,9 @@ def test_session_answers(test_session_id: int) -> Response:
     return jsonify(foos_test_service.get_test_session_answers(test_session_id))
 
 
-@app.route('/api/answers/checked', methods=['POST'])
-def answers_checked() -> Response:
+@app.route('/api/answers/checked/<int:test_session_id>', methods=['POST'])
+def answers_checked(test_session_id: int) -> Response:
     request_data = request.get_json()
     checked_answers = {answer['id']: answer['is_correct'] for answer in request_data}
-    foos_test_service.process_checked_answers(checked_answers)
+    foos_test_service.process_checked_answers(test_session_id, checked_answers)
     return Response(status=200)

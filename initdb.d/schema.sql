@@ -11,6 +11,7 @@ create table test_session (
     start_time datetime,
     end_time datetime null,
     score int null,
+    is_checked boolean,
     foreign key (user_id) references telegram_user(user_id)
 );
 

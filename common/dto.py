@@ -32,6 +32,7 @@ class TestSessionDto:
     start_time: datetime
     end_time: Optional[datetime]
     score: Optional[int]
+    is_checked: bool
 
     @staticmethod
     def from_model(test_session: TestSession) -> 'TestSessionDto':
@@ -41,6 +42,7 @@ class TestSessionDto:
             start_time=test_session.start_time,
             end_time=test_session.end_time,
             score=test_session.score,
+            is_checked=test_session.is_checked,
         )
 
 

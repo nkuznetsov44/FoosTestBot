@@ -1,0 +1,15 @@
+.score.passed {
+  color: green;
+}
+
+.score.failed {
+  color: red;
+}
+
+.score.unchecked {
+  color: lightgray;
+}
+
+.score {
+  font-weight: bold;
+}

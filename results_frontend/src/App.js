@@ -14,6 +14,7 @@ const App = () => {
   const [selectedUserId, setSelectedUserId] = React.useState(null);
   const [testSessions, setTestSessions] = React.useState([]);
   const [selectedTestSessionId, setSelectedTestSessionId] = React.useState(null);
+  const [testSessionsNeedUpdate, setTestSessionsNeedUpdate] = React.useState(false);
   const [answers, setAnswers] = React.useState(null);
 
   React.useEffect(() => {
@@ -23,12 +24,13 @@ const App = () => {
   }, []);
 
   React.useEffect(() => {
-    if (!_.isNull(selectedUserId)) {
+    if (!_.isNull(selectedUserId) && testSessionsNeedUpdate) {
       axios.get(`/api/testSessions/${selectedUserId}`).then((response) => {
         setTestSessions(response.data);
       });
+      setTestSessionsNeedUpdate(false);
     }
-  }, [selectedUserId]);
+  }, [selectedUserId, testSessionsNeedUpdate]);
 
   React.useEffect(() => {
     if (!_.isNull(selectedTestSessionId)) {
@@ -49,7 +51,12 @@ const App = () => {
     const selectedTestSession = selectedRowsData[0];
     if (!_.isNull(selectedTestSession)) {
       setSelectedTestSessionId(selectedTestSession.id);
+      setTestSessionsNeedUpdate(true);
     }
+  };
+
+  const onAnswersSaved = () => {
+    setTestSessionsNeedUpdate(true);
   };
 
   return (
@@ -68,7 +75,11 @@ const App = () => {
         />
       </section>
       <section className="answers">
-        <AnswersTable answers={answers} />
+        <AnswersTable
+          testSessionId={selectedTestSessionId}
+          answers={answers}
+          onAnswersSaved={onAnswersSaved}
+        />
       </section>
     </div>
   );

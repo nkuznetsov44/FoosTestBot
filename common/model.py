@@ -25,6 +25,7 @@ class TestSession(Base):
     start_time = Column('start_time', DateTime)
     end_time = Column('end_time', DateTime, nullable=True)
     score = Column('score', Integer, nullable=True)
+    is_checked = Column('is_checked', Boolean)
     answers = relationship('Answer')
 
 
