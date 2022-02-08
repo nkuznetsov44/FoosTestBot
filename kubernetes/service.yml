@@ -16,7 +16,7 @@ metadata:
   name: foostest-results-frontend
 spec:
   selector:
-    app: foostes-results-frontend
+    app: foostest-results-frontend
   ports:
     - protocol: TCP
       port: 80
@@ -28,7 +28,7 @@ metadata:
   name: foostest-results-app
 spec:
   selector:
-    app: foostes-results-app
+    app: foostest-results-app
   ports:
     - protocol: TCP
       port: 8000
