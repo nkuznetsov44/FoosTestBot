@@ -233,7 +233,7 @@ spec:
     spec:
       containers:
         - name: foostestbot-results-frontend
-          image: nkuznetsov44/foostestbot-results-frontend:latest
+          image: nkuznetsov44/foostest-results-frontend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80
